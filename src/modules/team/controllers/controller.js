@@ -141,18 +141,46 @@ exports.findIndexMember = function (req, res, next) {
     var membersData = req.data;
     var status = req.body.status;
 
-    req.update = req.data.members.findIndex(function (data) {
-        // console.log(data)
-        return data.member_id === req.body.member_id;
-    });
-    membersData.members[req.update].status = status
-    req.memberOne = membersData
-    // console.log(membersData);
-    next();
+    if (req.body.status === "staff") {
+        req.update = req.data.members.findIndex(function (data) {
+            // console.log(data)
+            return data.member_id === req.body.member_id;
+        });
+        membersData.members[req.update].status = status
+        req.memberOne = membersData
+        // req.memberOne.members.splice(req.update,1)
+        console.log(membersData);
+        next();
+    }
+    
+
+    if (req.body.status === "retire") {
+        req.update = req.data.members.findIndex(function (data) {
+            // console.log(data)
+            return data.member_id === req.body.member_id;
+        });
+        membersData.members.splice(req.update,1)
+        req.memberOne = membersData
+        console.log(membersData);
+        req.memberOne.save(function (err, memberdata) {
+            if (err) {
+                return res.status(400).send({
+                    status: 400,
+                    message: errorHandler.getErrorMessage(err)
+                });
+            } else {
+                req.memberdelete = memberdata;
+                next();
+            };
+        });
+        
+    }
 }
 
 exports.findMemberAndUpdateById = function (req, res) {
-    var membersData = req.memberOne
+
+    if (req.body.status === "staff") {
+        var membersData = req.memberOne
     // console.log(membersData)
 
     var userrabbitmq = {
@@ -176,6 +204,14 @@ exports.findMemberAndUpdateById = function (req, res) {
             });
         };
     });
+    }
+
+    if (req.body.status === "retire") {
+        res.jsonp({
+            status: 200,
+            data: req.memberdelete
+        });
+    }
 
 
 }
