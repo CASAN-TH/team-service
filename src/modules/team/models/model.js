@@ -7,7 +7,47 @@ var Schema = mongoose.Schema;
 var TeamSchema = new Schema({
     name: {
         type: String,
+        unique: true,
         required: 'Please fill a Team name',
+    },
+    codeteam: {
+        type: String,
+        unique: true,
+        required: 'Please fill a Code Team',
+    },
+    detail: {
+        type: String
+    },
+    status: {
+        type: String,
+        enum: ['waitapprove','approve'],
+        default: ['waitapprove']
+    },
+    image:{
+        type: String
+    },
+    members: {
+        type: [
+            {
+                firstname: {
+                    type: String
+                },
+                lastname: {
+                    type: String
+                },
+                displayname: {
+                    type: String
+                },
+                status: {
+                    type: String,
+                    enum: ['waitapprove','staff','retire'],
+                    default: ['waitapprove']
+                },
+                member_id: {
+                    type: String
+                }
+            }
+        ]
     },
     created: {
         type: Date,
