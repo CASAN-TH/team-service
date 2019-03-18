@@ -219,7 +219,7 @@ exports.updateStatusToOwner = function (req, res) {
 
     var status = req.body.status;
     var id = req.data._id;
-    if (req.body.status === "apporve") {
+    if (req.body.status === "approve") {
         Team.findByIdAndUpdate(id, { $set: { status: status } }, { new: true }, function (err, data) {
             if (err) {
                 return res.status(400).send({
