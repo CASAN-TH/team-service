@@ -14,6 +14,14 @@ module.exports = function (app) {
         .put(controller.update)
         .delete(controller.delete);
 
+    app.route('/api/teams/add/:teamId')
+        .put(controller.addTeam)
+
+    app.route('/api/teams/edit/:teamId')  //สำหรับ เปลี่ยนสถานะลูกทีม
+        .put(
+            controller.findIndexMember,
+            controller.findMemberAndUpdateById)
+
     app.param('teamId', controller.getByID);
 
     /**
@@ -22,8 +30,8 @@ module.exports = function (app) {
      * qname : ชื่อสถานีย่อย สาขา
      * keymsg : ชื่อผู้รับ
      */
-    mq.consume('Team', 'created', 'created', (msg)=>{
-        console.log(JSON.parse(msg.content));
-        
-    });
+    // mq.consume('Team', 'created', 'created', (msg)=>{
+    //     console.log(JSON.parse(msg.content));
+
+    // });
 }

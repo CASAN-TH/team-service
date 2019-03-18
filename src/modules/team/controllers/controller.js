@@ -1,13 +1,13 @@
 'use strict';
 var mongoose = require('mongoose'),
-    model = require('../models/model'), 
+    model = require('../models/model'),
     mq = require('../../core/controllers/rabbitmq'),
     Team = mongoose.model('Team'),
     errorHandler = require('../../core/controllers/errors.server.controller'),
     _ = require('lodash');
-    
+
 exports.getList = function (req, res) {
-        Team.find(function (err, datas) {
+    Team.find(function (err, datas) {
         if (err) {
             return res.status(400).send({
                 status: 400,
@@ -23,9 +23,9 @@ exports.getList = function (req, res) {
 };
 
 exports.create = function (req, res) {
-        var newTeam = new Team(req.body);
-        newTeam.createby = req.user;
-        newTeam.save(function (err, data) {
+    var newTeam = new Team(req.body);
+    newTeam.createby = req.user;
+    newTeam.save(function (err, data) {
         if (err) {
             return res.status(400).send({
                 status: 400,
@@ -39,7 +39,7 @@ exports.create = function (req, res) {
             /**
              * Message Queue
              */
-            mq.publish('Team', 'created', JSON.stringify(data));
+            // mq.publish('Team', 'created', JSON.stringify(data));
         };
     });
 };
@@ -107,3 +107,66 @@ exports.delete = function (req, res) {
         };
     });
 };
+
+exports.addTeam = function (req, res) {
+
+    var updTeam = req.data;
+    var data = {
+        firstname: req.user.firstname,
+        lastname: req.user.lastname,
+        displayname: req.user.firstname + ' ' + req.user.lastname,
+        member_id: req.body.member_id
+    }
+    updTeam.updated = new Date();
+    // updTeam.updateby = req.user;
+    updTeam.members.push(data);
+    updTeam.save(function (err, data) {
+        if (err) {
+            return res.status(400).send({
+                status: 400,
+                message: errorHandler.getErrorMessage(err)
+            });
+        } else {
+            res.jsonp({
+                status: 200,
+                data: data
+            });
+        };
+    });
+}
+
+exports.findIndexMember = function (req, res, next) {
+    var membersData = req.data;
+    var status = req.body.status;
+
+    req.update = req.data.members.findIndex(function (data) {
+        // console.log(data)
+        return data.member_id === req.body.member_id;
+    });
+    membersData.members[req.update].status = status
+    req.memberOne = membersData
+    // console.log(membersData);
+    next();
+}
+
+exports.findMemberAndUpdateById = function (req, res) {
+    var membersData = req.memberOne
+    // console.log(membersData)
+
+    Team.findByIdAndUpdate(membersData._id, membersData, { new: true }, function (err, data) {
+        if (err) {
+            return res.status(400).send({
+                status: 400,
+                message: errorHandler.getErrorMessage(err)
+            });
+        } else {
+            // console.log(data)
+            res.jsonp({
+                status: 200,
+                data: data
+            });
+        };
+    });
+
+
+}
