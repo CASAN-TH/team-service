@@ -110,6 +110,7 @@ exports.delete = function (req, res) {
 
 exports.addTeam = function (req, res) {
 
+
     var updTeam = req.data;
     var data = {
         firstname: req.user.firstname,
@@ -127,6 +128,7 @@ exports.addTeam = function (req, res) {
                 message: errorHandler.getErrorMessage(err)
             });
         } else {
+
             res.jsonp({
                 status: 200,
                 data: data
@@ -152,6 +154,13 @@ exports.findIndexMember = function (req, res, next) {
 exports.findMemberAndUpdateById = function (req, res) {
     var membersData = req.memberOne
     // console.log(membersData)
+
+    var userrabbitmq = {
+        userid: req.body.member_id,
+        status: req.body.status
+    }
+
+    mq.publish('casan', 'updatestatus', JSON.stringify(userrabbitmq))
 
     Team.findByIdAndUpdate(membersData._id, membersData, { new: true }, function (err, data) {
         if (err) {
