@@ -352,6 +352,73 @@ describe('Team CRUD routes tests', function () {
             });
     });
 
+    it('Should Admin Apporve owner', function (done) {
+        var mockup2 = {
+            name: 'name',
+            codeteam: 'tst',
+            detail: 'test Detail2',
+            members: [
+                {
+                    firstname: "nutnut",
+                    lastname: 'lerler',
+                    displayname: 'nutnut lerler',
+                    member_id: "member002"
+                }
+            ]
+        };
+        request(app)
+            .post('/api/teams')
+            .set('Authorization', 'Bearer ' + token)
+            .send(mockup2)
+            .expect(200)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                var resp = res.body;
+                assert.equal(resp.data.name, mockup.name)
+                assert.equal(resp.data.codeteam, mockup.codeteam)
+                assert.equal(resp.data.detail, mockup.detail)
+                assert.equal(resp.data.members.length, 1)
+                // done();
+                var updateTeam = {
+                    member_id: 'member001'
+                }
+                request(app)
+                    .put('/api/teams/add/' + resp.data._id)
+                    .set('Authorization', 'Bearer ' + token)
+                    .send(updateTeam)
+                    .expect(200)
+                    .end((err, res) => {
+                        if (err) {
+                            return done(err)
+                        }
+                        var respupdate = res.body;
+                        // console.log(respupdate.data);
+
+                        var updStatus = {
+                         
+                            status: 'apporve'
+                            // status: 'retire'
+                        }  //หัวทีม แก้สถานะของลูกทีม
+                        request(app)
+                            .put('/api/teams/adminapporve/' + resp.data._id)
+                            .set('Authorization', 'Bearer ' + token)
+                            .send(updStatus)
+                            .expect(200)
+                            .end((err, res) => {
+                                if (err) {
+                                    return done(err);
+                                }
+                                var resMemUpdateStatus = res.body;
+                                // console.log(resMemUpdateStatus.data)
+                        
+                                done();
+                            });
+                    });
+            });
+    });
+
     afterEach(function (done) {
         Team.remove().exec(done);
     });

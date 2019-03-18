@@ -149,19 +149,19 @@ exports.findIndexMember = function (req, res, next) {
         membersData.members[req.update].status = status
         req.memberOne = membersData
         // req.memberOne.members.splice(req.update,1)
-        console.log(membersData);
+        // console.log(membersData);
         next();
     }
-    
+
 
     if (req.body.status === "retire") {
         req.update = req.data.members.findIndex(function (data) {
             // console.log(data)
             return data.member_id === req.body.member_id;
         });
-        membersData.members.splice(req.update,1)
+        membersData.members.splice(req.update, 1)
         req.memberOne = membersData
-        console.log(membersData);
+        // console.log(membersData);
         req.memberOne.save(function (err, memberdata) {
             if (err) {
                 return res.status(400).send({
@@ -173,7 +173,7 @@ exports.findIndexMember = function (req, res, next) {
                 next();
             };
         });
-        
+
     }
 }
 
@@ -181,29 +181,29 @@ exports.findMemberAndUpdateById = function (req, res) {
 
     if (req.body.status === "staff") {
         var membersData = req.memberOne
-    // console.log(membersData)
+        // console.log(membersData)
 
-    var userrabbitmq = {
-        userid: req.body.member_id,
-        status: req.body.status
-    }
+        var userrabbitmq = {
+            userid: req.body.member_id,
+            status: req.body.status
+        }
 
-    mq.publish('casan', 'updatestatus', JSON.stringify(userrabbitmq))
+        mq.publish('casan', 'updatestatus', JSON.stringify(userrabbitmq))
 
-    Team.findByIdAndUpdate(membersData._id, membersData, { new: true }, function (err, data) {
-        if (err) {
-            return res.status(400).send({
-                status: 400,
-                message: errorHandler.getErrorMessage(err)
-            });
-        } else {
-            // console.log(data)
-            res.jsonp({
-                status: 200,
-                data: data
-            });
-        };
-    });
+        Team.findByIdAndUpdate(membersData._id, membersData, { new: true }, function (err, data) {
+            if (err) {
+                return res.status(400).send({
+                    status: 400,
+                    message: errorHandler.getErrorMessage(err)
+                });
+            } else {
+                // console.log(data)
+                res.jsonp({
+                    status: 200,
+                    data: data
+                });
+            };
+        });
     }
 
     if (req.body.status === "retire") {
@@ -213,5 +213,52 @@ exports.findMemberAndUpdateById = function (req, res) {
         });
     }
 
+}
 
+exports.updateStatusToOwner = function (req, res) {
+
+    var status = req.body.status;
+    var id = req.data._id;
+    if (req.body.status === "apporve") {
+        Team.findByIdAndUpdate(id, { $set: { status: status } }, { new: true }, function (err, data) {
+            if (err) {
+                return res.status(400).send({
+                    status: 400,
+                    message: errorHandler.getErrorMessage(err)
+                });
+            } else {
+                var userteamid = {
+                    userid: data.user_id,
+                    status: req.body.status
+                }
+                mq.publish('casan', 'updatestatus', JSON.stringify(userteamid))
+                console.log(data)
+                res.jsonp({
+                    status: 200,
+                    data: data
+                });
+            };
+        });
+    }
+    if (req.body.status === "reject") {
+        req.data.remove(function (err, data) {
+            if (err) {
+                return res.status(400).send({
+                    status: 400,
+                    message: errorHandler.getErrorMessage(err)
+                });
+            } else {
+                console.log(data)
+                res.jsonp({
+                    status: 200,
+                    data: data
+                });
+            };
+        });
+    }
+
+    // res.jsonp({
+    //     status: 200,
+    //     data: ''
+    // });
 }
