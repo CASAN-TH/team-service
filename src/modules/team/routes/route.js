@@ -21,8 +21,14 @@ module.exports = function (app) {
         .put(
             controller.findIndexMember,
             controller.findMemberAndUpdateById)
+    
+    app.route('/api/teams/adminapporve/:teamId')
+        .put(
+            controller.updateStatusToOwner
+        )        
 
     app.param('teamId', controller.getByID);
+
 
     /**
      * Message Queue

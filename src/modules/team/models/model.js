@@ -10,6 +10,9 @@ var TeamSchema = new Schema({
         unique: true,
         required: 'Please fill a Team name',
     },
+    user_id:{
+        type:String
+    },
     codeteam: {
         type: String,
         unique: true,
