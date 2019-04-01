@@ -140,7 +140,7 @@ exports.addTeam = function (req, res) {
 exports.findIndexMember = function (req, res, next) {
     var membersData = req.data;
     var status = req.body.status;
-
+    console.log(req.data)
     if (req.body.status === "staff") {
         req.update = req.data.members.findIndex(function (data) {
             // console.log(data)
@@ -185,10 +185,11 @@ exports.findMemberAndUpdateById = function (req, res) {
 
         var userrabbitmq = {
             userid: req.body.member_id,
-            status: req.body.status
+            status: req.body.status,
+            statusmember:req.body.statusmember
         }
 
-        mq.publish('casan', 'updatestatus', JSON.stringify(userrabbitmq))
+        mq.publish('casanteam', 'updatestatusteam', JSON.stringify(userrabbitmq))
 
         Team.findByIdAndUpdate(membersData._id, membersData, { new: true }, function (err, data) {
             if (err) {
@@ -256,9 +257,4 @@ exports.updateStatusToOwner = function (req, res) {
             };
         });
     }
-
-    // res.jsonp({
-    //     status: 200,
-    //     data: ''
-    // });
 }
