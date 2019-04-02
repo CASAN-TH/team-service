@@ -230,7 +230,7 @@ exports.updateStatusToOwner = function (req, res) {
 
     var status = req.body.status;
     var id = req.data._id;
-    // console.log('ssssss  ',req.data)
+    console.log('ssssss  ',req.data)
     if (req.body.status === "approve") {
         Team.findByIdAndUpdate(id, { $set: { status: status } }, { new: true }, function (err, data) {
             if (err) {
@@ -256,12 +256,12 @@ exports.updateStatusToOwner = function (req, res) {
     if (req.body.status === "reject") {
 
         var userteamid = {
-            userid: data.user_id,
+            userid: req.data.user_id,
             status: req.body.status,
             remark: req.body.remark
         }
-
         mq.publish('casan', 'updatestatus', JSON.stringify(userteamid))
+        
         req.data.remove(function (err, data) {
             if (err) {
                 return res.status(400).send({
