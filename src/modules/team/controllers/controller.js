@@ -208,6 +208,14 @@ exports.findMemberAndUpdateById = function (req, res) {
     }
 
     if (req.body.status === "retire") {
+
+        var userrabbitmq = {
+            userid: req.body.member_id,
+            status: req.body.status,
+            statusmember:req.body.statusmember
+        }
+        mq.publish('casanteam', 'updatestatusteam', JSON.stringify(userrabbitmq))
+        
         res.jsonp({
             status: 200,
             data: req.memberdelete
