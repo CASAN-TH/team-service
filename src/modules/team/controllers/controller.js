@@ -254,6 +254,14 @@ exports.updateStatusToOwner = function (req, res) {
     }
 
     if (req.body.status === "reject") {
+
+        var userteamid = {
+            userid: data.user_id,
+            status: req.body.status,
+            remark: req.body.remark
+        }
+
+        mq.publish('casan', 'updatestatus', JSON.stringify(userteamid))
         req.data.remove(function (err, data) {
             if (err) {
                 return res.status(400).send({
