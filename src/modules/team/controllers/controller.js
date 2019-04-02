@@ -186,7 +186,7 @@ exports.findMemberAndUpdateById = function (req, res) {
         var userrabbitmq = {
             userid: req.body.member_id,
             status: req.body.status,
-            statusmember:req.body.statusmember
+            statusmember: req.body.statusmember
         }
 
         mq.publish('casanteam', 'updatestatusteam', JSON.stringify(userrabbitmq))
@@ -212,10 +212,12 @@ exports.findMemberAndUpdateById = function (req, res) {
         var userrabbitmq = {
             userid: req.body.member_id,
             status: req.body.status,
-            statusmember:req.body.statusmember
+            statusmember: req.body.statusmember,
+            teamname: req.data.name,
+            teamid: req.data._id
         }
         mq.publish('casanteam', 'updatestatusteam', JSON.stringify(userrabbitmq))
-        
+
         res.jsonp({
             status: 200,
             data: req.memberdelete
@@ -228,6 +230,7 @@ exports.updateStatusToOwner = function (req, res) {
 
     var status = req.body.status;
     var id = req.data._id;
+    // console.log('ssssss  ',req.data)
     if (req.body.status === "approve") {
         Team.findByIdAndUpdate(id, { $set: { status: status } }, { new: true }, function (err, data) {
             if (err) {
@@ -241,7 +244,7 @@ exports.updateStatusToOwner = function (req, res) {
                     status: req.body.status
                 }
                 mq.publish('casan', 'updatestatus', JSON.stringify(userteamid))
-                console.log(data)
+                // console.log(data)
                 res.jsonp({
                     status: 200,
                     data: data
@@ -249,6 +252,7 @@ exports.updateStatusToOwner = function (req, res) {
             };
         });
     }
+
     if (req.body.status === "reject") {
         req.data.remove(function (err, data) {
             if (err) {
@@ -257,7 +261,6 @@ exports.updateStatusToOwner = function (req, res) {
                     message: errorHandler.getErrorMessage(err)
                 });
             } else {
-                console.log(data)
                 res.jsonp({
                     status: 200,
                     data: data
